@@ -5,7 +5,7 @@ struct FlowSetting {
   const int EN;
   const float setPoint;
   const float calibrationFactor;
-  const float pwmAdd; // Ubah menjadi const float
+  const float pwmAdd;
   const int defPWM;
   const int minPWM;
   const int maxPWM;
@@ -19,7 +19,7 @@ class FlowControl {
     FlowSetting sett;
     int pwmValue;
     unsigned long previousMillis;
-    volatile unsigned long pulseCount; // Tambahkan volatile
+    volatile unsigned long pulseCount;
     float integral;
     float previousError;
 
@@ -97,7 +97,6 @@ FlowSetting sett = {
   .Kd = 1.0
 };
 
-// Buat instance FlowControl
 FlowControl flowControl(sett);
 
 void setup() {
