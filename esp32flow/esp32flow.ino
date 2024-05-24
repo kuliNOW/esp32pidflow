@@ -59,13 +59,10 @@ class FlowControl {
         float output = sett->Kp * error + sett->Ki * integral + sett->Kd * derivative;
 
         if (flowRate == 0.00) { 
-<<<<<<< HEAD
           pwmValue += sett->pwmAdd; 
           pwmValue = constrain(pwmValue, sett->minPWM, sett->maxPWM);
-=======
           pwmValue += sett.pwmAdd;
           pwmValue = constrain(pwmValue, sett.minPWM, sett.maxPWM);
->>>>>>> ba46b52e033379abf98e6e6f70e3ffb88db4a8b8
         } else {
           pwmValue = sett->minPWM;
         }
@@ -104,11 +101,7 @@ FlowSetting sett = {
   .Kd = 1.0
 };
 
-<<<<<<< HEAD
 FlowControl flowControl(&sett);
-=======
-FlowControl flowControl(sett);
->>>>>>> ba46b52e033379abf98e6e6f70e3ffb88db4a8b8
 
 void setup() {
   flowControl.setup();
