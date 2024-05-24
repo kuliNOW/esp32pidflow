@@ -57,7 +57,7 @@ class FlowControl {
         float output = sett.Kp * error + sett.Ki * integral + sett.Kd * derivative;
 
         if (flowRate == 0.00) { 
-          pwmValue += sett.pwmAdd; // Menggunakan sett.pwmAdd yang telah diubah menjadi const float
+          pwmValue += sett.pwmAdd;
           pwmValue = constrain(pwmValue, sett.minPWM, sett.maxPWM);
         } else {
           pwmValue = sett.minPWM;
@@ -82,7 +82,7 @@ class FlowControl {
 
 // Inisialisasi pengaturan aliran Flow Control
 FlowSetting sett = {
-  .sensorPin = 13, //PIn untuk ke sensor Flow
+  .sensorPin = 13, //Pin untuk ke sensor Flow
   .IN1 = 27, // Pin untuk ke IN1 L298N
   .IN2 = 26, // Pin untuk ke IN2 L298N
   .EN = 21, // Pin untuk ke EN L298N
