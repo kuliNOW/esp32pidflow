@@ -1,3 +1,5 @@
+#include <functional>
+
 struct FlowSetting {
   const int sensorPin;
   const int IN1;
@@ -5,7 +7,7 @@ struct FlowSetting {
   const int EN;
   const float setPoint;
   const float calibrationFactor;
-  const float pwmAdd; // Ubah menjadi const float
+  const float pwmAdd;
   const int defPWM;
   const int minPWM;
   const int maxPWM;
@@ -16,16 +18,16 @@ struct FlowSetting {
 
 class FlowControl {
   private:
-    FlowSetting sett;
+    FlowSetting* sett;
     int pwmValue;
     unsigned long previousMillis;
-    volatile unsigned long pulseCount; // Tambahkan volatile
+    volatile unsigned long pulseCount;
     float integral;
     float previousError;
 
   public:
-    FlowControl(FlowSetting sett)
-      : sett(sett), pwmValue(sett.defPWM), previousMillis(0), pulseCount(0), integral(0), previousError(0) {}
+    FlowControl(FlowSetting* sett)
+      : sett(sett), pwmValue(sett->defPWM), previousMillis(0), pulseCount(0), integral(0), previousError(0) {}
 
     void IRAM_ATTR pulseCounter() {
       pulseCount++;
@@ -33,14 +35,14 @@ class FlowControl {
 
     void setup() {
       Serial.begin(115200);
-      pinMode(sett.IN1, OUTPUT);
-      pinMode(sett.IN2, OUTPUT);
-      pinMode(sett.EN, OUTPUT);
-      digitalWrite(sett.IN1, LOW);
-      digitalWrite(sett.IN2, HIGH);
-      analogWrite(sett.EN, sett.defPWM);
-      pinMode(sett.sensorPin, INPUT_PULLUP);
-      attachInterrupt(digitalPinToInterrupt(sett.sensorPin), std::bind(&FlowControl::pulseCounter, this), RISING);
+      pinMode(sett->IN1, OUTPUT);
+      pinMode(sett->IN2, OUTPUT);
+      pinMode(sett->EN, OUTPUT);
+      digitalWrite(sett->IN1, LOW);
+      digitalWrite(sett->IN2, HIGH);
+      analogWrite(sett->EN, sett->defPWM);
+      pinMode(sett->sensorPin, INPUT_PULLUP);
+      attachInterrupt(digitalPinToInterrupt(sett->sensorPin), std::bind(&FlowControl::pulseCounter, this), RISING);
     }
 
     void loop() {
@@ -48,21 +50,21 @@ class FlowControl {
       unsigned long elapsedTime = currentMillis - previousMillis;
 
       if (elapsedTime >= 1000) {
-        detachInterrupt(digitalPinToInterrupt(sett.sensorPin));
+        detachInterrupt(digitalPinToInterrupt(sett->sensorPin));
 
-        float flowRate = pulseCount / sett.calibrationFactor;
-        float error = sett.setPoint - flowRate;
+        float flowRate = pulseCount / sett->calibrationFactor;
+        float error = sett->setPoint - flowRate;
         integral += error * elapsedTime / 1000.0;
         float derivative = (error - previousError) / (elapsedTime / 1000.0);
-        float output = sett.Kp * error + sett.Ki * integral + sett.Kd * derivative;
+        float output = sett->Kp * error + sett->Ki * integral + sett->Kd * derivative;
 
         if (flowRate == 0.00) { 
-          pwmValue += sett.pwmAdd; // Menggunakan sett.pwmAdd yang telah diubah menjadi const float
-          pwmValue = constrain(pwmValue, sett.minPWM, sett.maxPWM);
+          pwmValue += sett->pwmAdd; 
+          pwmValue = constrain(pwmValue, sett->minPWM, sett->maxPWM);
         } else {
-          pwmValue = sett.minPWM;
+          pwmValue = sett->minPWM;
         }
-        analogWrite(sett.EN, pwmValue);
+        analogWrite(sett->EN, pwmValue);
         Serial.print("Flow rate: ");
         Serial.print(flowRate);
         Serial.print(" L/min");
@@ -75,7 +77,7 @@ class FlowControl {
         previousMillis = currentMillis;
         previousError = error;
 
-        attachInterrupt(digitalPinToInterrupt(sett.sensorPin), std::bind(&FlowControl::pulseCounter, this), RISING);
+        attachInterrupt(digitalPinToInterrupt(sett->sensorPin), std::bind(&FlowControl::pulseCounter, this), RISING);
       }
     }
 };
@@ -97,8 +99,7 @@ FlowSetting sett = {
   .Kd = 1.0
 };
 
-// Buat instance FlowControl
-FlowControl flowControl(sett);
+FlowControl flowControl(&sett);
 
 void setup() {
   flowControl.setup();
