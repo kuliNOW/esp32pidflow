@@ -1,6 +1,6 @@
 #include <functional>
 
-struct FlowSetting {
+typedef struct {
   const int sensorPin;
   const int IN1;
   const int IN2;
@@ -14,7 +14,7 @@ struct FlowSetting {
   const float Kp;
   const float Ki;
   const float Kd;
-};
+} FlowSetting;
 
 class FlowControl {
   private:
@@ -61,8 +61,6 @@ class FlowControl {
         if (flowRate == 0.00) { 
           pwmValue += sett->pwmAdd; 
           pwmValue = constrain(pwmValue, sett->minPWM, sett->maxPWM);
-          pwmValue += sett.pwmAdd;
-          pwmValue = constrain(pwmValue, sett.minPWM, sett.maxPWM);
         } else {
           pwmValue = sett->minPWM;
         }
